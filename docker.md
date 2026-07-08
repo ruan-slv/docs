@@ -1,17 +1,12 @@
-# DOCKER PARA BACKEND
+# AMBIENTES DOCKERIZADOS
 Este documento tem como objetivo explicar e fornecer modelos de container para ambientes de desenvolvimento com docker, evitando ouvir a famosa frase: "Na minha máquina funciona".
 
-Será fornecido algumas ferramentas ao longo desta ferramenta, sendo elas:
-| Ferramenta    | Versão    |
-| :--           | :--       |
-| `Java`        | 25        |
-| `PHP`         | 8.2       |
-| `Node`        | latest    |
-| `Postgres`    | latest    |
-| `Mysql`       | latest    |
-| `MariaDB`     | latest    |
-| `MongoDB`     | latest    |
-| `ScyllaDB`    | latest    |
+Será fornecido algumas ferramentas ao longo desta ferramenta, sendo elas: 
+* Java     
+* Postgres
+* Mysql
+* MariaDB
+* MongoDB 
 
 ---
 ## COMANDOS GLOBAIS DE MONITORAMENTO
@@ -57,9 +52,10 @@ r Limpeza Geral   | `docker system prune`                 | Apaga todos os conta
 | `docker compose start`         | Inicia os contêiners                                      |
 | `docker compose stop`          | Paralisa os contêiners                                    |
 | `docker compose down -v`       | Paralisa e remove todos os contêiners (tudo)              |
-cat
-# Ferramentas Dockerizadas para Backend
-Esta sessão fornecerá explicação e containers prontos para utilização das ferramentas: Java, Php e Node.
+
+<br><br><br>
+
+# Exemplo de Containers docker
 
 ## Java
 O Java é uma linguagem de programação multiplataforma e orientada a objetos que opera sob o famoso princípio "escreva uma vez, rode em qualquer lugar" (write once, run anywhere). Por conta de sua alta segurança e escalabilidade, ela é amplamente utilizada no desenvolvimento de sistemas corporativos robustos, aplicativos Android e APIs de grande porte no backend.
@@ -80,61 +76,6 @@ COPY --from=builder /build/target/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
-
-## Php
-O PHP é uma das linguagens de script mais utilizadas no mundo para o desenvolvimento web, sendo executada do lado do servidor para gerar conteúdo dinâmico em sites e aplicações. Sua grande popularidade se deve à facilidade de integração com diversos bancos de dados e à robustez com que sustenta desde pequenos blogs até grandes plataformas globais.
-
-```bash
-FROM php:8.2-cli-alpine AS builder
-WORKDIR /var/www
-RUN apk --no-cache git unzip libzip-dev icu-dev libpng-dev
-RUN docker-php-ext-install zip intl gd
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-plugins --no-scripts
-COPY . .
-
-FROM php:8.2-fpm-alpine AS production
-WORKDIR /var/www
-RUN apk add --no-cache icu-dev libzip-dev libpng-dev && docker-php-ext-install intl zip pdo_mysql gd && opcache
-COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
-COPY --from=builder --chown=www-data:www-data /var/www /var/www
-USER www-data
-EXPOSE 9000
-CMD ["php-fpm]
-```
-
-## Node
-O Node.js é um ambiente de execução JavaScript assíncrono e orientado a eventos, projetado para criar aplicações de rede escaláveis e de alta performance. Baseado no motor V8 do Google Chrome, ele permite que desenvolvedores utilizem a mesma linguagem tanto no front-end quanto no back-end de forma eficiente.
-
-```bash
-FROM node:20-alpine AS deps
-RUN apk add --no-cache libc6-compat
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN npm run build
-RUN npm prune --production && npm cache clean --force
-
-FROM node:20-alpine AS runner
-ENV NODE_ENV=production
-USER node
-COPY --from=builder --chown=node:node /app/package*.json ./
-COPY --from=builder --chown=node:node /app/node_modules ./node_modules
-COPY --from=builder --chown=node:node /app/dist ./dist
-EXPOSE 3000
-CMD ["node", "dist/index.js"]
-```# Database
-Está sessão fornecerá comando de execução para banco de dados SQL e NOSQL em ambientes dockerizados, a fim de fornecer e manter a máquina limpa de configurações diretamente na máquina.
-
-Será abordado banco de dados:
-* SQL: Postgresql, Mysql/MariaDB
-* NOSQL: MongoDB e ScyllaDB
 
 ## Postgresql
 É um sistema de gerenciamento de banco de dados relacional objeto (SGBD), tendo amplo espaço no mercado pela sua robustez, confiabilidade, desempenho avançado e conformidade com os padrões SQL.
@@ -207,9 +148,7 @@ docker run --name maria-db \
 * `-p 3306:3306`: Mapeia a porta do host para a porta do container.
 * `-d mariadb:latest`: Define o container em segundo plano e a imagem que será usada mais sua versão.
 
-# Nosql
-
-## MongoDB (Documentar)
+## MongoDB
 O MongoDB é um banco de dados NoSQL orientado a documentos que armazena informações em formatos flexíveis semelhantes ao JSON, em vez de tabelas e linhas tradicionais. Ele é altamente escalável e ideal para lidar com grandes volumes de dados não estruturados, permitindo modificações rápidas na estrutura dos dados sem a necessidade de migrações complexas.
 
 ```bash
@@ -228,25 +167,3 @@ mongo:latest
 * `-p 27017:27017`: Mapeia a porta do host para a porta do container.
 * `-v mongo_data:/data/db`: Cria e mapeia um volume nomeado para persistir os dados do banco fora do ciclo de vida do container.
 * `mongo:latest`: Define a imagem que será usada mais sua versão.
-
-## ScyllaDB (Colunar)
-O ScyllaDB é um banco de dados NoSQL de colunas largas e distribuído, projetado para oferecer ultra-baixa latência e altíssimo rendimento. Ele foi desenvolvido em C++ como uma alternativa drop-in de alto desempenho para o Apache Cassandra, aproveitando ao máximo a arquitetura de hardware moderna.
-
-### Comando para utilizar o ScyllaDB via container
-
-```bash
-docker run --name scylla-db \
--p 9042:9042 \
--d scylladb/scylla:latest \
---smp 1 \
---memory 1G
-```
-
-### Explicação de cada comando
-
-* `docker run`: Executa um novo container a partir de uma imagem.
-* `--name scylla-db`: Define o nome do container.
-* `-p 9042:9042`: Mapeia a porta nativa de transporte do CQL (Cassandra Query Language) do host para o container.
-* `-d scylladb/scylla:latest`: Define o container em segundo plano e a imagem oficial do ScyllaDB que será usada mais sua versão.
-* `--smp 1`: Restringe o ScyllaDB a utilizar apenas 1 thread de CPU (ideal para ambientes de desenvolvimento local).
-* `--memory 1G`: Limpa e limita a quantidade de memória RAM disponível para o container (evitando que ele consuma todos os recursos da máquina).
