@@ -173,4 +173,5 @@ Agora seu programa é um executável nativo do sistema. Para rodá-lo:
 ```
 
 ## 📋 9. Consultar a Tabela de Syscalls
-[Syscalls](https://www.chromium.org/chromium-os/developer-library/reference/linux-constants/syscalls/)
+* [Tabela Syscalls](https://www.chromium.org/chromium-os/developer-library/reference/linux-constants/syscalls/)
+* [Tabela ASCII](https://www.ascii-code.com/)
