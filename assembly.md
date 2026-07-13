@@ -9,6 +9,7 @@ Este guia serve como referência e manual de sobrevivência para o desenvolvimen
 Todo programa em Assembly x86_64 é estruturado em seções fundamentais que delimitam onde ficam as variáveis e onde fica o código executável:
 
 * **.data**: Destinada a variáveis inicializadas. Espaço para constantes e textos (strings) fixos que não mudam de tamanho.
+* **.rodata**: Área destinada a constantes imutáveis e strings fixas que não devem ser modificadas em tempo de execução. É usada para garantir que certos dados permaneçam somente leitura, evitando alterações acidentais.
 * **.bss**: Destinada a variáveis não inicializadas. Reserva espaço na memória RAM para dados dinâmicos que serão inseridos durante a execução.
 * **.text**: Onde o código propriamente dito reside. É obrigatório conter o ponto de entrada global (geralmente a etiqueta `_start`).
 
