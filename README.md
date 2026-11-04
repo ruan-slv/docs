@@ -7,6 +7,7 @@ Temas:
 * [Docker](docker.md)
 * [Dart](full_stack_dart.md)
 * [Git](git.md)
+* [Inno Setup](inno_setup.md)
 * [Lazyvim](lazyvim.md)
 * [Tmux](tmux.md)
 * [Wget](wget.md)
